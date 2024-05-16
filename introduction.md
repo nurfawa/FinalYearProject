@@ -20,7 +20,6 @@
 - [Acknowledgements](#acknowledgements)
 - [Project Overview](#project-overview)
 - [Introduction to Quantum Computing](#introduction-to-quantum-computing)
-- [Research Methodology](#research-methodology)
 - [Significance](#significance)
 - [Conclusion](#conclusion)
 - [Contact](#contact)
@@ -33,7 +32,7 @@ I extend my deepest gratitude to my alma mater, **Universiti Tenaga Nasional**, 
 
 - **Title:** Investigating the Impact of Grover's Algorithm on AES S-BOX Function  
 - **Project Type:** Research-based  
-- **Supervisor:** [Supervisor's Name]
+- **Supervisor:** Ts. Nabil Zawawi
 
 ### Objectives
 
@@ -43,19 +42,7 @@ I extend my deepest gratitude to my alma mater, **Universiti Tenaga Nasional**, 
 
 ## Introduction to Quantum Computing
 
-<div align="center">
-
-![Grover's Algorithm](https://source.unsplash.com/random/1024x768?quantum,algorithm)
-
-*Grover's Algorithm in action*
-
-</div>
-
 Quantum computing uses quantum mechanics to perform computations at speeds unattainable by traditional computers. This emerging technology poses significant threats to data security, especially concerning the rapid decryption capabilities against standard encryption methods like AES S-BOX.
-
-## Research Methodology
-
-This study utilizes simulations to investigate Grover's Algorithm's impact on AES S-BOX security, determining the necessary quantum bits (qubits) and exploring resilient encryption methodologies.
 
 ## Significance
 
@@ -67,13 +54,8 @@ This research aims to fortify protections within financial systems, communicatio
 
 ## Contact
 
-For inquiries or collaborations, please reach out via email at **[your-email@domain.com]**.
+For inquiries or collaborations, please reach out via email at **thefahimaiwani@gmail.com**.
 
-<div align="center">
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/your-repository?style=social)](https://github.com/yourusername/your-repository/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/your-repository?style=social)](https://github.com/yourusername/your-repository/network/members)
-
-</div>
 
 
