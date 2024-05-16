@@ -1,37 +1,50 @@
-Hello. My name is Fahima and this is my Final Year Project. 
+# Final Year Project: Investigating the Impact of Grover's Algorithm on AES S-BOX Function
 
-Before that, I would like to thank my alma meter, Universiti Tenaga Nasional for giving me this opportunity to make my idea comes true. 
+Hello, my name is Fahima. Welcome to the repository for my Final Year Project at Universiti Tenaga Nasional. I am grateful to have had the opportunity to bring my ideas to fruition through this project. Below, you'll find an overview of the project, its objectives, and its relevance to the field of quantum computing and cybersecurity.
 
-Next, let's dive into my project. 
+## Acknowledgements
 
-Firstly, I will explain about this project briefly.
+I would like to express my gratitude to my alma mater, Universiti Tenaga Nasional, for their support and for providing me with the resources needed to complete this project.
 
-Title         : Investigating the impact of Grover's algorithm on AES S-BOX function 
-Project Type  : Research-based
-Objectives    : 
+## Project Overview
 
-1) Identify the strength and vulnerabilities in existing cryptographic algorithms, the suitable criteria of cryptographic algorithm that can be used
-for the upcoming experiment, and possible attacks on the algorithm that may be exploited by Grover’s Algorithm and other advancements in quantum computing.
-2) Experiment and evaluate the feasibility of quantum attacks against the S-box function of AES algorithm using Grover’s Algorithm and assess 
-the potential impact of these attacks on cybersecurity, including the difficulty of cracking the algorithm using a quantum computer.
-3) Explore and provide recommendations and cryptographic approaches that can resist quantum attacks to enhance the resilience of cryptographic systems 
-in the face of emerging quantum technologies.
+**Title:** Investigating the Impact of Grover's Algorithm on AES S-BOX Function  
+**Project Type:** Research-based  
+**Supervisor:** [Supervisor's Name]
 
+### Objectives
 
-Basically, quantum computing is a new kind of technology that uses the rules of quantum mechanics to solve problems much faster than regular computers. 
-This could be a problem for keeping data safe because quantum computers might be able to break codes that protect our private information, like the 
-AES S-BOX encryption, very quickly.
+1. Identify the strengths and vulnerabilities of existing cryptographic algorithms, establish criteria suitable for upcoming experiments, and assess potential attacks that may be exploited by Grover’s Algorithm and other advancements in quantum computing.
+2. Experiment and evaluate the feasibility of quantum attacks against the AES algorithm's S-box function using Grover’s Algorithm, assessing the potential impact on cybersecurity.
+3. Explore and recommend cryptographic approaches that can resist quantum attacks to enhance the resilience of cryptographic systems against emerging quantum technologies.
 
-Right now, breaking AES S-BOX encryption with regular computers would take billions of years, but quantum computers might be able to do it in just a few 
-months or years if they become strong enough. As technology improves quickly, it's expected that quantum computers will get more powerful and cheaper, 
-which could make our current security methods vulnerable.
+## Introduction to Quantum Computing
 
-My research project looks into how quantum computing could break AES S-BOX encryption, especially using something called Grover's algorithm. Grover's algorithm 
-is a way to make searching for the right decryption key much faster. It could turn a search that would normally take 2^128 steps into just 2^64 steps using a quantum computer.
+Quantum computing represents a paradigm shift in computing, leveraging the principles of quantum mechanics to solve problems far more efficiently than traditional computers. This advancement poses significant risks to data security, particularly through the potential of breaking traditional encryption methods like the AES S-BOX encryption swiftly.
 
-The main goal of this study is to use simulations to see how Grover's algorithm affects the security of AES S-BOX. It will also find out how many quantum bits (qubits) 
-are needed to break the encryption. Besides that, the research will look for new ways to encrypt data that quantum computers can't break easily. 
-This is important to help keep things like financial systems, communication networks, and health systems safe as quantum computers become more common.
+### Problem Statement
 
-I am hoping that my study can contributes to the global effort to prepare our digital security systems for the quantum era, aligning with 
-the 9th Sustainable Development Goal (SDG) of building resilient infrastructure and fostering innovation.
+Currently, breaking AES S-BOX encryption with traditional computers would take an impractical amount of time—billions of years. However, quantum computers might reduce this time drastically, potentially cracking the encryption within months or years as they evolve.
+
+### Grover's Algorithm
+
+Grover's Algorithm is central to this research. It optimizes the search for the correct decryption key, potentially reducing the steps needed from 2^128 to 2^64 in a quantum computing context.
+
+## Research Methodology
+
+The project employs simulations to study the effect of Grover's Algorithm on the security of the AES S-BOX, determining the number of quantum bits (qubits) required to break the encryption and investigating new encryption methods that are more resilient to quantum attacks.
+
+## Significance
+
+This research aims to contribute to global efforts in preparing digital security systems for the quantum era, aligning with the 9th Sustainable Development Goal (SDG): building resilient infrastructure and fostering innovation.
+
+## Conclusion
+
+I hope that my study will contribute significantly to the field, helping secure financial systems, communication networks, health systems, and more against the threats posed by advancements in quantum computing.
+
+Thank you for visiting this project repository. Please feel free to explore the code and documentation.
+
+---
+
+For any inquiries or collaborations, please contact me at [your-email@domain.com].
+
