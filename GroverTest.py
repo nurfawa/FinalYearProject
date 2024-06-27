@@ -93,7 +93,7 @@ def setup_quantum_circuit(num_qubits, target_output):
 
 def main():
     secret_key = b'secretkey'
-    plaintext = b'123123123'
+    plaintext = b'123123123' //put your plaintext here
     cipher, iv = setup_aes_cipher(secret_key)
     encrypted_message = encrypt_message(cipher, plaintext)
     target_output = encrypted_message[0] % 256
