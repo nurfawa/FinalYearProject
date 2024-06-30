@@ -68,23 +68,24 @@ def sbox_oracle(circuit, qubits, target_output):
             for i, bit in enumerate(binary_input):
                 if bit == '0':
                     circuit.append(cirq.X(qubits[i]))
-            circuit.append(cirq.Z(qubits[-1]).controlled_by(*qubits[:-1]))
+            # Toffoli gate implementation
+            circuit.append(cirq.CCX(qubits[0], qubits[1], qubits[2]))
             for i, bit in enumerate(binary_input):
                 if bit == '0':
                     circuit.append(cirq.X(qubits[i]))
 
 def apply_diffusion_operator(circuit, qubits):
     """Apply the diffusion operator (inversion about the mean)."""
-    circuit.append(cirq.H.on_each(*qubits))
     circuit.append(cirq.X.on_each(*qubits))
-    circuit.append(cirq.Z(qubits[-1]).controlled_by(*qubits[:-1]))
+    circuit.append(cirq.CCX(qubits[0], qubits[1], qubits[2]))
     circuit.append(cirq.X.on_each(*qubits))
-    circuit.append(cirq.H.on_each(*qubits))
 
 def setup_quantum_circuit(num_qubits, target_output, iterations):
     """Setup the quantum circuit for Grover's algorithm."""
     qubits = [cirq.LineQubit(i) for i in range(num_qubits)]
     circuit = cirq.Circuit()
+    # Initialize qubits to |-> state
+    circuit.append(cirq.X.on_each(*qubits))
     circuit.append(cirq.H.on_each(*qubits))
     iterations = optimal_iterations(num_qubits)
     for _ in range(iterations):
@@ -92,6 +93,7 @@ def setup_quantum_circuit(num_qubits, target_output, iterations):
         apply_diffusion_operator(circuit, qubits)
     circuit.append(cirq.measure(*qubits, key='result'))
     return circuit, qubits
+
 
 def log_circuit_info(circuit, execution_time):
     num_qubits = len(circuit.all_qubits())
@@ -113,54 +115,73 @@ def calculate_circuit_depth(circuit):
         depth += 1
     return depth
 
-def adjust_to_1kb(plaintext):
+def count_gates(circuit):
+    """Count the number of X, H, CX, CCX, and other gates in the circuit."""
+    gate_counts = {
+        'X': 0,
+        'H': 0,
+        'CX': 0,
+        'CCX': 0,
+        'Other': 0
+    }
+
+    for moment in circuit:
+        for op in moment.operations:
+            if isinstance(op.gate, cirq.XPowGate):
+                gate_counts['X'] += 1
+            elif isinstance(op.gate, cirq.HPowGate):
+                gate_counts['H'] += 1
+            elif isinstance(op.gate, cirq.CNotPowGate):
+                gate_counts['CX'] += 1
+            elif isinstance(op.gate, cirq.CCXPowGate):
+                gate_counts['CCX'] += 1
+            else:
+                gate_counts['Other'] += 1
+
+    return gate_counts
+
+def adjust_bytes_to_1kb(byte_sequence):
     """
-    Adjust the given plaintext to be exactly 1KB (1024 bytes) in size.
+    Adjust the given byte sequence to be exactly 1KB (1024 bytes) in size.
 
     Args:
-    plaintext (str): The input plaintext.
+    byte_sequence (bytes): The input byte sequence.
 
     Returns:
-    str: The adjusted plaintext of 1KB in size.
+    bytes: The adjusted byte sequence of 1KB in size.
     """
-    # Convert the plaintext to bytes
-    plaintext_bytes = plaintext.encode('utf-8')
+    # Calculate the current size of the byte sequence
+    current_size = len(byte_sequence)
 
-    # Calculate the current size of the plaintext in bytes
-    current_size = len(plaintext_bytes)
-
-    # If the current size is already 1KB, return the plaintext
+    # If the current size is already 1KB, return the byte sequence
     if current_size == 1024:
-        return plaintext
+        return byte_sequence
 
-    # If the current size is greater than 1KB, trim the plaintext
+    # If the current size is greater than 1KB, trim the byte sequence
     if current_size > 1024:
-        return plaintext_bytes[:1024].decode('utf-8', errors='ignore')
+        return byte_sequence[:1024]
 
-    # If the current size is less than 1KB, repeat the plaintext until it exceeds 1KB
+    # If the current size is less than 1KB, repeat the byte sequence until it exceeds 1KB
     while current_size < 1024:
-        plaintext_bytes += plaintext.encode('utf-8')
-        current_size = len(plaintext_bytes)
+        byte_sequence += byte_sequence
+        current_size = len(byte_sequence)
 
-    # Trim the plaintext to exactly 1KB
-    adjusted_plaintext = plaintext_bytes[:1024].decode('utf-8', errors='ignore')
+    # Trim the byte sequence to exactly 1KB
+    adjusted_byte_sequence = byte_sequence[:1024]
 
-    return adjusted_plaintext
+    return adjusted_byte_sequence
 
-# Given plaintext
-plaintext = "To understand why AES is vulnerable to quantum attacks, it is important to understand how the algorithm works. AES uses a key to encrypt and decrypt data."
+# Given byte sequence
+byte_sequence = b'123123123'
 
-# Adjust the plaintext to 1KB
-adjusted_plaintext = adjust_to_1kb(plaintext)
-print(f"The size of the adjusted plaintext is: {len(adjusted_plaintext.encode('utf-8'))} bytes")
-print(f"Adjusted Plaintext:\n{adjusted_plaintext}")
-
-
+# Adjust the byte sequence to 1KB
+adjusted_byte_sequence = adjust_bytes_to_1kb(byte_sequence)
+print(f"The size of the adjusted byte sequence is: {len(adjusted_byte_sequence)} bytes")
+print(f"Adjusted Byte Sequence:\n{adjusted_byte_sequence}")
 
 def main():
     secret_key = b'nur fahima iwani'
     plaintext = b'123123123'
-
     initial_memory = get_memory_usage()
      # Start measuring time
     total_start_time = time.time()
@@ -187,6 +208,7 @@ def main():
     total_execution_time = (total_end_time - total_start_time) * 1000  # Convert to milliseconds
 
     circuit_depth = calculate_circuit_depth(circuit)
+    gate_counts = count_gates(circuit)
 
     plaintext_bytes = list(plaintext)
     actual_sbox_output = simulate_sbox(plaintext_bytes)
@@ -200,6 +222,7 @@ def main():
     else:
         print("Mismatch: Quantum result does not match classical S-box output.")
     print("Circuit Depth:", circuit_depth)
+    print("Gate Counts:", gate_counts)
     print("Circuit:\n", circuit)
     print("Results:\n", result.histogram(key='result'))
 
@@ -247,6 +270,6 @@ def log_circuit_info(circuit, execution_time, iterations, memory_usage, circuit_
     print(f"Feasibility: {'Feasible' if feasible else 'Not Feasible'}")
     print(f"Vulnerability Insights: {vulnerability}")
 
-
 if __name__ == "__main__":
     main()
+
