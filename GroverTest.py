@@ -5,6 +5,8 @@ import os
 import matplotlib.pyplot as plt
 from collections import Counter
 import math
+import time
+import psutil
 from Crypto.Cipher import AES
 
 # Constants
@@ -79,7 +81,7 @@ def apply_diffusion_operator(circuit, qubits):
     circuit.append(cirq.X.on_each(*qubits))
     circuit.append(cirq.H.on_each(*qubits))
 
-def setup_quantum_circuit(num_qubits, target_output):
+def setup_quantum_circuit(num_qubits, target_output, iterations):
     """Setup the quantum circuit for Grover's algorithm."""
     qubits = [cirq.LineQubit(i) for i in range(num_qubits)]
     circuit = cirq.Circuit()
@@ -91,34 +93,121 @@ def setup_quantum_circuit(num_qubits, target_output):
     circuit.append(cirq.measure(*qubits, key='result'))
     return circuit, qubits
 
+def log_circuit_info(circuit, execution_time):
+    num_qubits = len(circuit.all_qubits())
+    num_gates = sum(1 for _ in circuit.all_operations())  # Convert generator to a count
+
+    print(f"Number of Qubits: {num_qubits}")
+    print(f"Number of Gates: {num_gates}")
+    print(f"Execution Time: {execution_time:.4f} seconds")
+
+def get_memory_usage():
+    """Return the current memory usage of the process."""
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss
+
+def calculate_circuit_depth(circuit):
+    """Calculate and return the depth of the quantum circuit."""
+    depth = 0
+    for moment in circuit:
+        depth += 1
+    return depth
+
+def adjust_to_1kb(plaintext):
+    """
+    Adjust the given plaintext to be exactly 1KB (1024 bytes) in size.
+
+    Args:
+    plaintext (str): The input plaintext.
+
+    Returns:
+    str: The adjusted plaintext of 1KB in size.
+    """
+    # Convert the plaintext to bytes
+    plaintext_bytes = plaintext.encode('utf-8')
+
+    # Calculate the current size of the plaintext in bytes
+    current_size = len(plaintext_bytes)
+
+    # If the current size is already 1KB, return the plaintext
+    if current_size == 1024:
+        return plaintext
+
+    # If the current size is greater than 1KB, trim the plaintext
+    if current_size > 1024:
+        return plaintext_bytes[:1024].decode('utf-8', errors='ignore')
+
+    # If the current size is less than 1KB, repeat the plaintext until it exceeds 1KB
+    while current_size < 1024:
+        plaintext_bytes += plaintext.encode('utf-8')
+        current_size = len(plaintext_bytes)
+
+    # Trim the plaintext to exactly 1KB
+    adjusted_plaintext = plaintext_bytes[:1024].decode('utf-8', errors='ignore')
+
+    return adjusted_plaintext
+
+# Given plaintext
+plaintext = "To understand why AES is vulnerable to quantum attacks, it is important to understand how the algorithm works. AES uses a key to encrypt and decrypt data."
+
+# Adjust the plaintext to 1KB
+adjusted_plaintext = adjust_to_1kb(plaintext)
+print(f"The size of the adjusted plaintext is: {len(adjusted_plaintext.encode('utf-8'))} bytes")
+print(f"Adjusted Plaintext:\n{adjusted_plaintext}")
+
+
+
 def main():
-    secret_key = b'secretkey'
-    plaintext = b'123123123' //put your plaintext here
+    secret_key = b'nur fahima iwani'
+    plaintext = b'123123123'
+
+    initial_memory = get_memory_usage()
+     # Start measuring time
+    total_start_time = time.time()
+
     cipher, iv = setup_aes_cipher(secret_key)
     encrypted_message = encrypt_message(cipher, plaintext)
     target_output = encrypted_message[0] % 256
 
     num_qubits = 8
-    circuit, qubits = setup_quantum_circuit(num_qubits, target_output)
+    iterations = optimal_iterations(num_qubits)
+    start_time = time.time()
+    circuit, qubits = setup_quantum_circuit(num_qubits, target_output, iterations)
     simulator = cirq.Simulator()
     result = simulator.run(circuit, repetitions=1000)
+    end_time = time.time()
+
+    # End measuring time
+    total_end_time = time.time()
+
+    final_memory = get_memory_usage()
+    memory_usage = final_memory - initial_memory
+
+    execution_time = (end_time - start_time) * 1000  # Convert to milliseconds
+    total_execution_time = (total_end_time - total_start_time) * 1000  # Convert to milliseconds
+
+    circuit_depth = calculate_circuit_depth(circuit)
 
     plaintext_bytes = list(plaintext)
     actual_sbox_output = simulate_sbox(plaintext_bytes)
-    expected_sbox_output = [199, 35, 195, 199, 35, 195, 199, 35, 195]  #change accordingly
+    expected_sbox_output = [lookup(byte) for byte in plaintext_bytes[:16]]  # Adjust as needed
 
-    print("Original plaintext bytes:", plaintext_bytes)
-    print("Actual S-box output:", actual_sbox_output)
+    print("Original plaintext bytes:", plaintext_bytes[:16])
+    print("Actual S-box output:", actual_sbox_output[:16])
     print("Expected S-box output:", expected_sbox_output)
-    # Check if the outputs match
-    if actual_sbox_output == expected_sbox_output:
+    if actual_sbox_output[:16] == expected_sbox_output:
         print("Success: Quantum result matches classical S-box output.")
     else:
         print("Mismatch: Quantum result does not match classical S-box output.")
+    print("Circuit Depth:", circuit_depth)
     print("Circuit:\n", circuit)
     print("Results:\n", result.histogram(key='result'))
 
+    print(f"Total Execution Time: {total_execution_time:.2f} ms")
+    print(f"Grover's Algorithm Execution Time: {execution_time:.2f} ms")
+
     plot_results(result)
+    log_circuit_info(circuit, execution_time, iterations, memory_usage, circuit_depth)
 
 def plot_results(result):
     """Plot the histogram of measurement outcomes."""
@@ -135,6 +224,29 @@ def plot_results(result):
     plt.ylabel('Frequency')
     plt.title("Top 16 Measurement Outcomes of Grover's Algorithm")
     plt.show()
+
+def log_circuit_info(circuit, execution_time, iterations, memory_usage, circuit_depth):
+    """Log the information about the quantum circuit."""
+    num_qubits = len(circuit.all_qubits())
+    num_gates = sum(1 for _ in circuit.all_operations())  # Convert generator to a count
+
+    # Feasibility Analysis
+    feasible = num_qubits <= 20 and execution_time < 1  # Example criteria
+
+    # Vulnerability Insights
+    classical_time = 2 ** 8  # For 8-bit search space
+    quantum_time = iterations * execution_time
+    speedup = classical_time / quantum_time
+    vulnerability = "High" if speedup > 100 else "Moderate" if speedup > 10 else "Low"
+
+    print(f"Number of Qubits: {num_qubits}")
+    print(f"Number of Gates: {num_gates}")
+    print(f"Number of Iterations: {iterations}")
+    print(f"Memory Usage: {memory_usage / (1024 ** 2):.2f} MB")
+    print(f"Circuit Depth: {circuit_depth}")
+    print(f"Feasibility: {'Feasible' if feasible else 'Not Feasible'}")
+    print(f"Vulnerability Insights: {vulnerability}")
+
 
 if __name__ == "__main__":
     main()
